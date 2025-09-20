@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>過三關</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS样式：现代化游戏界面 */
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* 现代渐变背景 */
+            margin: 0;
+            color: #333;
+            overflow: hidden; /* 防止礼炮动画溢出滚动条 */
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2.8em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .section-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* 适应小屏幕 */
+            justify-content: center;
+        }
+
+        .game-modes, .game-scores {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px); /* 毛玻璃效果 */
+        }
+
+        .game-modes button, #resetButton, #settingsButton, .settings-panel button {
+            padding: 12px 25px;
+            margin: 0 8px; /* 调整按钮间距 */
+            font-size: 1.1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .game-modes button {
+            background-color: #2ecc71; /* 绿色 */
+            color: white;
+        }
+
+        .game-modes button:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .game-modes button.active {
+            background-color: #3498db; /* 蓝色 */
+            transform: translateY(0);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        #resetButton {
+            background-color: #f39c12; /* 橙色 */
+            color: white;
+        }
+
+        #resetButton:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        #settingsButton {
+            background-color: #95a5a6; /* 灰色 */
+            color: white;
+        }
+
+        #settingsButton:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(8px);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 110px); /* 稍大一点的格子 */
+            grid-template-rows: repeat(3, 110px);
+            gap: 8px; /* 稍大一点的间隙 */
+            background-color: #ecf0f1; /* 浅灰色背景 */
+            border: 3px solid #bdc3c7; /* 边框 */
+            width: 346px; /* 3*110px + 2*8px gaps + 2*3px border */
+            height: 346px;
+            border-radius: 8px;
+            overflow: hidden; /* 确保圆角 */
+        }
+
+        .cell {
+            width: 110px;
+            height: 110px;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4.5em; /* 更大的字体 */
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #dcdfe4;
+            transition: all 0.2s ease-in-out;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05); /* 轻微内阴影 */
+        }
+
+        .cell:hover {
+            background-color: #eaf0f6;
+            transform: scale(1.03); /* 轻微放大 */
+        }
+
+        .cell.x {
+            color: #e74c3c; /* 鲜红色 */
+            text-shadow: 1px 1px 3px rgba(231,76,60,0.3);
+        }
+
+        .cell.o {
+            color: #3498db; /* 鲜蓝色 */
+            text-shadow: 1px 1px 3px rgba(52,152,219,0.3);
+        }
+
+        #gameStatus {
+            margin-top: 25px;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            min-height: 40px;
+        }
+
+        .score-display {
+            font-size: 1.2em;
+            color: #555;
+            text-align: center;
+        }
+
+        .score-display span {
+            font-weight: bold;
+            margin: 0 5px;
+            color: #34495e;
+        }
+
+        /* 设置面板样式 */
+        .settings-panel {
+            position: fixed; /* 固定定位 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+            display: none; /* 默认隐藏 */
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(200, 200, 200, 0.5);
+        }
+
+        .settings-panel h3 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .settings-panel label {
+            margin: 15px 0;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #34495e;
+        }
+
+        .settings-panel input[type="checkbox"] {
+            margin-left: 15px;
+            transform: scale(1.5); /* 放大复选框 */
+            accent-color: #3498db; /* 更改复选框颜色 */
+        }
+
+        .settings-panel button {
+            background-color: #1abc9c; /* 青绿色 */
+            color: white;
+            margin-top: 20px;
+        }
+
+        .settings-panel button:hover {
+            background-color: #16a085;
+        }
+
+        .settings-panel .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.2s;
+        }
+
+        .settings-panel .close-btn:hover {
+            color: #666;
+            transform: rotate(90deg);
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            display: none; /* 默认隐藏 */
+            backdrop-filter: blur(3px); /* 遮罩层也带一点毛玻璃 */
+        }
+
+        /* 胜利动画 - 礼炮效果 */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* 允许点击穿透 */
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px; /* 稍大一点 */
+            height: 12px;
+            background-color: #ffeb3b; /* 黄色 */
+            opacity: 0;
+            border-radius: 50%; /* 圆形 */
+            animation: fall 3s forwards ease-out;
+        }
+
+        /* 随机颜色 */
+        .confetti:nth-child(2n) { background-color: #e91e63; /* 粉色 */ }
+        .confetti:nth-child(3n) { background-color: #9c27b0; /* 紫色 */ }
+        .confetti:nth-child(4n) { background-color: #00bcd4; /* 青色 */ }
+        .confetti:nth-child(5n) { background-color: #8bc34a; /* 浅绿色 */ }
+        .confetti:nth-child(6n) { background-color: #ff5722; /* 深橙色 */ }
+
+
+        @keyframes fall {
+            0% {
+                transform: translate(var(--startX), var(--startY)) rotate(0deg) scale(0.8);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translate(var(--endX), var(--endY)) rotate(720deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* 嘲讽文本动画 */
+        .mocking-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em; /* 更大的字体 */
+            font-weight: bold;
+            color: #c0392b; /* 暗红色 */
+            text-align: center;
+            opacity: 0;
+            animation: fadeInOutScale 3s forwards;
+            z-index: 2000;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid #e74c3c;
+        }
+
+        @keyframes fadeInOutScale {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            90% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        /* 网站链接的样式 */
+        .footer-link {
+            margin-top: 40px;
+            font-size: 0.95em;
+            color: #555;
+            text-align: center;
+        }
+
+        .footer-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .debug-info {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-align: center;
+            max-width: 346px;
+        }
+    </style>
+</head>
+<body>
+    <h1>過三關</h1>
+
+    <div class="section-container">
+        <div class="game-modes">
+            <button id="onePlayerModeBtn" class="active">人機對戰</button>
+            <button id="twoPlayersModeBtn">雙人模式</button>
+        </div>
+
+        <div class="game-scores">
+            <p class="score-display">玩家 X 勝利: <span id="playerXScore">0</span></p>
+            <p class="score-display">玩家 O 勝利: <span id="playerOScore">0</span></p>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-board" id="gameBoard">
+            </div>
+        <div id="gameStatus"></div>
+        <div class="debug-info" id="debugInfo">遊戲狀態: 等待開始</div>
+        <div style="margin-top: 20px;">
+            <button id="resetButton">重新開始</button>
+            <button id="settingsButton">設置</button>
+        </div>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <span class="close-btn" id="closeSettingsBtn">&times;</span>
+        <h3>遊戲設置</h3>
+        <label>
+            <input type="checkbox" id="animationToggle" checked>
+            啟用遊戲結束動畫
+        </label>
+        <button id="resetScoresBtn">重置對戰記錄</button>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="footer-link">
+        <p>了解更多关于井字棋的信息：<a href="https://zh.wikipedia.org/wiki/%E4%BA%95%E5%AD%97%E6%A3%8B" target="_blank">维基百科 - 井字棋</a></p>
+        <p>了解Minimax算法：<a href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E6%9C%80%E5%A4%A7%E5%8C%96%E7%AE%97%E6%B3%95" target="_blank">维基百科 - Minimax算法</a></p>
+    </div>
+
+    <script>
+        /* JavaScript逻辑：控制游戏行为 - 已修复电脑代点击问题 */
+
+        // 获取DOM元素
+        const gameBoard = document.getElementById('gameBoard');
+        const gameStatus = document.getElementById('gameStatus');
+        const debugInfo = document.getElementById('debugInfo');
+        const resetButton = document.getElementById('resetButton');
+        const onePlayerModeBtn = document.getElementById('onePlayerModeBtn');
+        const twoPlayersModeBtn = document.getElementById('twoPlayersModeBtn');
+        const playerXScoreDisplay = document.getElementById('playerXScore');
+        const playerOScoreDisplay = document.getElementById('playerOScore');
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const animationToggle = document.getElementById('animationToggle');
+        const resetScoresBtn = document.getElementById('resetScoresBtn');
+        const overlay = document.getElementById('overlay');
+
+        // 游戏状态变量
+        let board = ['', '', '', '', '', '', '', '', '']; // 井字棋盘状态
+        let currentPlayer = 'X'; // 当前玩家，可以是'X'或'O'
+        let gameActive = false; // 游戏是否正在进行
+        let isSinglePlayerMode = true; // 是否为单人模式（默认为人机对战）
+        let playerXScore = 0; // 玩家X的胜利次数
+        let playerOScore = 0; // 玩家O（或电脑）的胜利次数
+        let enableAnimations = true; // 控制动画是否开启
+
+        // 胜利条件（所有可能的赢法）
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // 行
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // 列
+            [0, 4, 8], [2, 4, 6]             // 对角线
+        ];
+
+        // 电脑嘲讽语句 (针对真人玩家失败)
+        const mockingPhrases = [
+            "哈哈，就咁？",
+            "你係咪未醒啊？",
+            "练多嘀，輸多嘀 :p",
+            "？呵呵呵呵呵呵呵呵呵呵...",
+            "太慢啦，我杯咖啡都凍咗啦！",
+            "嗯，唔错既嘗試，不過下次唔好再試。",
+            "我合埋眼都可以赢你。",
+            "你确定你玩既係過三關？"        ];
+
+        // --- 游戏初始化和重置 ---
+
+        // 初始化游戏板
+        function initializeGame() {
+            gameBoard.innerHTML = ''; // 清空棋盘
+            board.forEach((_cell, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = index; // 存储单元格的索引
+                cell.addEventListener('click', handleCellClick);
+                gameBoard.appendChild(cell);
+            });
+            loadScores(); // 加载成绩
+            loadSettings(); // 加载设置
+            resetGame(); // 调用重置函数来设置初始状态
+        }
+
+        // 重置游戏状态
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', '']; // 清空棋盘数据
+            currentPlayer = 'X'; // 'X' 总是先手
+            gameActive = true; // 游戏开始
+            gameStatus.textContent = `玩家 ${currentPlayer} 的回合`; // 更新状态显示
+            debugInfo.textContent = `游戏状态: 进行中 | 模式: ${isSinglePlayerMode ? '人机对战' : '双人模式'} | 当前玩家: ${currentPlayer}`;
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.textContent = ''; // 清空格子内容
+                cell.classList.remove('x', 'o'); // 移除样式
+            });
+            hideAnimations(); // 隐藏所有动画效果
+        }
+
+        // --- 模式切换 ---
+
+        onePlayerModeBtn.addEventListener('click', () => {
+            isSinglePlayerMode = true;
+            onePlayerModeBtn.classList.add('active');
+            twoPlayersModeBtn.classList.remove('active');
+            resetGame();
+            gameStatus.textContent = `人機對戰：玩家 ${currentPlayer} 的回合`;
+            debugInfo.textContent = `遊戲狀態: 進行中 | 模式: 人機對戰 | 當前玩家: ${currentPlayer}`;
+        });
+
+        twoPlayersModeBtn.addEventListener('click', () => {
+            isSinglePlayerMode = false;
+            twoPlayersModeBtn.classList.add('active');
+            onePlayerModeBtn.classList.remove('active');
+            resetGame();
+            gameStatus.textContent = `雙人模式：玩家 ${currentPlayer} 的回合`;
+            debugInfo.textContent = `遊戲狀態: 進行中 | 模式: 雙人模式 |當前玩家: ${currentPlayer}`;
+        });
+
+        // --- 玩家和电脑的移动逻辑 ---
+
+        // 处理单元格点击事件
+        function handleCellClick(event) {
+            const clickedCell = event.target;
+            const clickedCellIndex = parseInt(clickedCell.dataset.index);
+
+            // 如果单元格已被占用或游戏未激活，则不执行任何操作
+            if (board[clickedCellIndex] !== '' || !gameActive) {
+                return;
+            }
+
+            // 更新棋盘状态并显示玩家标记
+            updateCell(clickedCell, clickedCellIndex);
+            checkGameStatus(); // 检查游戏是否结束
+        }
+
+        // 更新单元格内容和样式
+        function updateCell(cell, index) {
+            board[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase()); // 添加 'x' 或 'o' 类
+        }
+
+        // 切换玩家
+        function changePlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            gameStatus.textContent = `玩家 ${currentPlayer} 的回合`;
+            debugInfo.textContent = `遊戲狀態: 進行中 | 模式: ${isSinglePlayerMode ? '人機對戰' : '雙人模式'} | 當前玩家: ${currentPlayer}`;
+            
+            // 如果是单人模式且轮到电脑，则触发电脑移动
+            if (isSinglePlayerMode && gameActive && currentPlayer === 'O') {
+                setTimeout(handleComputerMove, 700); // 延迟电脑移动，增加用户体验
+            }
+        }
+
+        // --- Minimax AI 逻辑 ---
+
+        // 检查当前状态是否有赢家
+        function checkWinner(currentBoard) {
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (currentBoard[a] && currentBoard[a] === currentBoard[b] && currentBoard[a] === currentBoard[c]) {
+                    return currentBoard[a]; // 返回赢家 'X' 或 'O'
+                }
+            }
+            return null; // 没有赢家
+        }
+
+        // 检查是否平局
+        function checkDraw(currentBoard) {
+            return !checkWinner(currentBoard) && currentBoard.every(cell => cell !== '');
+        }
+
+        // Minimax 核心算法
+        function minimax(newBoard, player) {
+            const humanPlayer = 'X';
+            const aiPlayer = 'O';
+
+            // 检查终止状态
+            let win = checkWinner(newBoard);
+            if (win === humanPlayer) {
+                return { score: -10 }; // 玩家X赢，对AI是负分
+            } else if (win === aiPlayer) {
+                return { score: 10 }; // 玩家O赢，对AI是正分
+            } else if (checkDraw(newBoard)) {
+                return { score: 0 }; // 平局
+            }
+
+            // 收集空位
+            let availableSpots = [];
+            for (let i = 0; i < newBoard.length; i++) {
+                if (newBoard[i] === '') {
+                    availableSpots.push(i);
+                }
+            }
+
+            let moves = []; // 存储所有可能的移动及其分数
+
+            for (let i = 0; i < availableSpots.length; i++) {
+                let move = {};
+                move.index = availableSpots[i];
+                newBoard[availableSpots[i]] = player; // 尝试进行这个移动
+
+                if (player === aiPlayer) {
+                    let result = minimax(newBoard, humanPlayer); // 递归调用，模拟对手的回合
+                    move.score = result.score;
+                } else {
+                    let result = minimax(newBoard, aiPlayer); // 递归调用，模拟AI的回合
+                    move.score = result.score;
+                }
+
+                newBoard[availableSpots[i]] = ''; // 撤销移动，恢复棋盘状态进行下一次尝试
+                moves.push(move);
+            }
+
+            // 根据当前玩家选择最优的移动
+            let bestMove;
+            if (player === aiPlayer) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < moves.length; i++) {
+                    if (moves[i].score > bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < moves.length; i++) {
+                    if (moves[i].score < bestScore) {
+                        bestScore = moves[i].score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return moves[bestMove];
+        }
+
+        // 处理电脑移动（Minimax AI） - 已修复：添加当前玩家检查
+        function handleComputerMove() {
+            // 关键修复：确保只在电脑的回合执行移动
+            if (!gameActive || currentPlayer !== 'O') {
+                debugInfo.textContent = `遊戲狀態: ${gameActive ? '進行中' : '已結束'} | 模式: 人機對戰 | 當前玩家: ${currentPlayer} | 電腦移動: 跳過`;
+                return;
+            }
+            
+            const bestMove = minimax(board, 'O'); // 计算最佳移动
+            const computerMoveIndex = bestMove.index;
+            const computerCell = document.querySelector(`.cell[data-index="${computerMoveIndex}"]`);
+            
+            debugInfo.textContent = `遊戲狀態: 進行中 | 模式: 人機對戰 | 當前玩家: ${currentPlayer} | 電腦移動: ${computerMoveIndex}`;
+            
+            updateCell(computerCell, computerMoveIndex);
+            checkGameStatus();
+        }
+
+        // --- 游戏状态检查 ---
+
+        // 检查游戏是否结束（赢或平局）
+        function checkGameStatus() {
+            let winner = checkWinner(board); // 使用新的checkWinner函数
+            
+            if (winner) {
+                gameStatus.textContent = `玩家 ${winner} 赢了!`;
+                gameActive = false; // 游戏结束
+                updateScore(winner); // 更新成绩
+                debugInfo.textContent = `遊戲狀態: 已結束 | 勝利者: ${winner}`;
+                if (enableAnimations) {
+                    if (isSinglePlayerMode && winner === 'O') { // 单人模式下电脑胜利，真人玩家失败
+                        showLoseMocking();
+                    } else { // 其他情况胜利 (玩家X胜利或双人模式)
+                        showWinAnimation();
+                    }
+                }
+                return;
+            }
+
+            // 检查平局
+            let roundDraw = checkDraw(board); // 使用新的checkDraw函数
+            if (roundDraw) {
+                gameStatus.textContent = `平局!`;
+                gameActive = false;
+                debugInfo.textContent = `遊戲狀態: 已結束 | 結果: 平局`;
+                return;
+            }
+
+            // 如果游戏未结束，则切换玩家
+            changePlayer();
+        }
+
+        // --- 成绩记录 ---
+
+        // 更新成绩
+        function updateScore(winner) {
+            if (winner === 'X') {
+                playerXScore++;
+            } else if (winner === 'O') {
+                playerOScore++;
+            }
+            saveScores(); // 保存成绩到本地存储
+            renderScores(); // 更新显示
+        }
+
+        // 渲染成绩到页面
+        function renderScores() {
+            playerXScoreDisplay.textContent = playerXScore;
+            playerOScoreDisplay.textContent = playerOScore;
+        }
+
+        // 保存成绩到本地存储
+        function saveScores() {
+            localStorage.setItem('tictactoe_playerXScore', playerXScore);
+            localStorage.setItem('tictactoe_playerOScore', playerOScore);
+        }
+
+        // 从本地存储加载成绩
+        function loadScores() {
+            playerXScore = parseInt(localStorage.getItem('tictactoe_playerXScore')) || 0;
+            playerOScore = parseInt(localStorage.getItem('tictactoe_playerOScore')) || 0;
+            renderScores();
+        }
+
+        // 重置所有对战成绩
+        function resetAllScores() {
+            if (confirm("确定要清空所有對戰記錄嗎？")) {
+                playerXScore = 0;
+                playerOScore = 0;
+                saveScores();
+                renderScores();
+                alert("對戰記錄已清空！");
+            }
+        }
+
+        // --- 动画效果 ---
+
+        // 显示胜利礼炮动画
+        function showWinAnimation() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.classList.add('confetti-container');
+            document.body.appendChild(confettiContainer);
+
+            for (let i = 0; i < 60; i++) { // 生成更多礼炮碎片
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                // 随机起始位置和结束位置
+                const startX = Math.random() * window.innerWidth;
+                const startY = Math.random() * window.innerHeight * 0.2; // 从顶部下落
+                const endX = startX + (Math.random() - 0.5) * 400; // 水平扩散
+                const endY = window.innerHeight + Math.random() * 200; // 落到屏幕下方
+
+                confetti.style.setProperty('--startX', `${startX}px`);
+                confetti.style.setProperty('--startY', `${startY}px`);
+                confetti.style.setProperty('--endX', `${endX}px`);
+                confetti.style.setProperty('--endY', `${endY}px`);
+                confetti.style.animationDelay = `${Math.random() * 0.8}s`; // 随机延迟
+                confettiContainer.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                confettiContainer.remove(); // 3秒后移除礼炮容器
+            }, 3000);
+        }
+
+        // 显示失败嘲讽语句
+        function showLoseMocking() {
+            const mockingTextDiv = document.createElement('div');
+            mockingTextDiv.classList.add('mocking-text');
+            const randomPhrase = mockingPhrases[Math.floor(Math.random() * mockingPhrases.length)];
+            mockingTextDiv.textContent = randomPhrase;
+            document.body.appendChild(mockingTextDiv);
+
+            setTimeout(() => {
+                mockingTextDiv.remove(); // 3秒后移除嘲讽文本
+            }, 3000);
+        }
+
+        // 隐藏所有动画效果（在重置游戏时调用）
+        function hideAnimations() {
+            const confettiContainers = document.querySelectorAll('.confetti-container');
+            confettiContainers.forEach(container => container.remove());
+            const mockingTexts = document.querySelectorAll('.mocking-text');
+            mockingTexts.forEach(text => text.remove());
+        }
+
+        // --- 设置面板逻辑 ---
+
+        // 打开设置面板
+        settingsButton.addEventListener('click', () => {
+            settingsPanel.style.display = 'flex';
+            overlay.style.display = 'block';
+        });
+
+        // 关闭设置面板
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsPanel.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        // 点击遮罩层关闭设置面板
+        overlay.addEventListener('click', () => {
+            settingsPanel.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        // 动画开关切换
+        animationToggle.addEventListener('change', () => {
+            enableAnimations = animationToggle.checked;
+            saveSettings(); // 保存设置
+        });
+
+        // 从本地存储加载设置
+        function loadSettings() {
+            const savedAnimationSetting = localStorage.getItem('tictactoe_enableAnimations');
+            if (savedAnimationSetting !== null) {
+                enableAnimations = (savedAnimationSetting === 'true');
+                animationToggle.checked = enableAnimations;
+            }
+        }
+
+        // 保存设置到本地存储
+        function saveSettings() {
+            localStorage.setItem('tictactoe_enableAnimations', enableAnimations);
+        }
+
+        // 重置成绩按钮点击事件
+        resetScoresBtn.addEventListener('click', resetAllScores);
+
+        // --- 事件监听器 ---
+
+        resetButton.addEventListener('click', resetGame); // 重置按钮点击事件
+
+        // 页面加载完成后初始化游戏
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>
