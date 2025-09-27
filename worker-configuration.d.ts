@@ -5,9 +5,10 @@ declare namespace Cloudflare {
 	interface GlobalProps {
 		mainModule: typeof import("./src/index");
 	}
-	interface Env {
-        ASSETS: Fetcher;
-	}
+    interface Env {
+            ASSETS: Fetcher;
+            TODO_KV: KVNamespace;
+        }
 }
 interface Env extends Cloudflare.Env {}
 
