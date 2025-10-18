@@ -1,0 +1,85 @@
+/* 基礎樣式重設 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff8f2;
+    color: #333;
+}
+
+/* 佈局容器 - 使用 Flexbox 實現主體居中和響應式 */
+main, footer {
+    width: 90%;
+    max-width: 800px; /* 限制最大寬度，避免在大螢幕上拉得太開 */
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* 表單輸入組件的佈局 */
+.input-group {
+    display: flex;
+    flex-direction: column; /* 預設在小螢幕上垂直排列 */
+    margin-bottom: 15px;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+select, input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* 按鈕樣式 */
+button, .footer-btn {
+    padding: 10px 15px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none; /* 針對 <a> 標籤 */
+    text-align: center;
+    display: inline-block;
+}
+
+#analyze-btn {
+    background-color: #007bff;
+    color: white;
+    margin-top: 20px;
+    width: 100%; /* 在小螢幕上佔滿寬度 */
+}
+
+/* 頁腳按鈕佈局 */
+footer {
+    display: flex;
+    justify-content: space-between; /* 使按鈕分散 */
+    padding: 15px;
+}
+
+/* --- 響應式設計 (Media Queries) --- */
+
+/* 當螢幕寬度大於 600px 時，調整佈局 */
+@media (min-width: 600px) {
+    /* 在大螢幕上，輸入組件可以並排顯示 */
+    #required-subjects .input-group {
+        flex-direction: row; /* 在大螢幕上水平排列 */
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* 讓 select 欄位佔用更多空間 */
+    .input-group select {
+        width: 60%;
+    }
+
+    /* 頁腳按鈕在大螢幕下更集中 */
+    footer {
+        justify-content: center;
+    }
+}

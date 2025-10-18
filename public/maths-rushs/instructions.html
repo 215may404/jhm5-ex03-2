@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊戲說明 - 數學反應挑戰</title>
+    <style>
+        /* R2: 確保頁面之間的設計一致 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* 導航樣式 (與 index.html 相同) */
+        nav {
+            background-color: #0056b3;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        /* R3: 懸停效果/動畫 (與 index.html 相同) */
+        nav a:hover {
+            background-color: #003d80;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        .content-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            line-height: 1.8;
+        }
+
+        .content-container h2 {
+            color: #007bff;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .content-container ol {
+            padding-left: 25px;
+        }
+
+        .content-container li {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        /* R3: 懸停效果/動畫 - 規則區塊輕微放大 */
+        .content-container:hover {
+            transform: scale(1.01);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+
+        /* R5(17) - 響應式設計 */
+        @media (max-width: 600px) {
+            .content-container {
+                padding: 20px;
+            }
+            nav a {
+                display: block;
+                margin: 5px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>數學反應挑戰</h1>
+    </header>
+    
+    <nav>
+        <a href="index.html">遊戲主頁</a>
+        <a href="instructions.html">遊戲說明</a>
+    </nav>
+
+    <main>
+        <div class="content-container">
+            <h2>遊戲說明 - 挑戰規則</h2>
+            
+            <p>「數學反應挑戰」旨在測試玩家的數學運算能力和反應速度。</p>
+            
+            <ol>
+                <li>
+                    <strong>題目生成：</strong> 系統隨機生成數學運算題目(加法、減法、乘法、除法)，玩家需要快速計算答案。
+                </li>
+                <li>
+                    <strong>作答方式：</strong> 玩家從多個選項中選擇正確答案，或直接輸入計算結果（目前版本使用選項選擇）。
+                </li>
+                <li>
+                    <strong>得分機制：</strong> 每道題目都有時間限制，**答對得10分**，**連勝每次額外得2分**，**答錯或超時扣5分**。
+                </li>
+                <li>
+                    <strong>難度漸增：</strong> 隨著遊戲進行，題目難度逐漸增加，時間限制也會縮短。
+                </li>
+                <li>
+                    <strong>遊戲目標：</strong> 遊戲目標是在限定時間內獲得最高分數，並挑戰個人最佳記錄。
+                </li>
+            </ol>
+
+            <p style="text-align: right; margin-top: 30px; font-style: italic;">——By May</p>
+        </div>
+    </main>
+
+</body>
+</html>

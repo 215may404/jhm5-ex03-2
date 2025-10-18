@@ -10,4 +10,7 @@ https://dash.cloudflare.com/oauth2/auth?response_type=code&client_id=54d11594-84
 /*from ports (change the website from browser)*/
 
 http://shiny-carnival-97r74q65q792xpjv-8976.app.github.dev/
+
+/*update to cloudflare*/
+npx wrangler deploy
 ,,,

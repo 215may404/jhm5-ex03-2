@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSE 成績分析器</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <main>
+        <form id="dseForm">
+            <section id="required-subjects">
+                <h2>第一部分：核心科目 (Core)</h2>
+                <div class="input-group">
+                    <label for="chi">中國語文：</label>
+                    <select id="chi" name="chi" required>
+                        <option value="">請選擇</option>
+                        <option value="5**">5**</option>
+                        <option value="5*">5*</option>
+                        <option value="5">5</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+               <div class="input-group">
+                    <label for="eng">英國語文：</label>
+                    <select id="eng" name="eng" required>
+                        <option value="">請選擇</option>
+                        <option value="5**">5**</option>
+                        <option value="5*">5*</option>
+                        <option value="5">5</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="math">數學：</label>
+                    <select id="math" name="math" required>
+                        <option value="">請選擇</option>
+                        <option value="5**">5**</option>
+                        <option value="5*">5*</option>
+                        <option value="5">5</option>
+                        <option value="4">4</option>
+                        <option value="3">3</option>
+                        <option value="2">2</option>
+                        <option value="1">1</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="csd">公民與社會發展科：</label>
+                    <select id="csd" name="csd" required>
+                        <option value="">請選擇</option>
+                        <option value="A">達標 (Attained)</option>
+                        <option value="U">不達標 (Unattained)</option>
+                    </select>
+                    </div>
+            </section>
+
+            <section id="elective-subjects">
+                <h2>第二部分：選修科目 (Electives) (選填)</h2>
+                <div id="electives-container">
+                </div>
+                <button type="button" id="add-elective-btn">新增選修科</button>
+            </section>
+
+            <button type="submit" id="analyze-btn">開始分析</button>
+        </form>
+
+        <section id="analysis-results" style="display:none;">
+            <h2>分析結果</h2>
+            <p><strong>最佳五科總成績 (Best 5):</strong> <span id="result-best5"></span></p>
+            <p><strong>預計百分比排名 (Rank):</strong> <span id="result-rank"></span></p>
+            <p><strong>百分位 (Percentile):</strong> <span id="result-percentile"></span></p>
+            <p><strong>高級文憑入學要求：</strong> <span id="result-hd-req"></span></p>
+        </section>
+    </main>
+
+    <footer>
+        <button id="reset-btn">重新輸入</button>
+        <a href="https://www.hyc.org.hk/" target="_blank" class="footer-btn">學友社 DSE 資訊</a>
+        <a href="https://www.jupas.edu.hk/" target="_blank" class="footer-btn">JUPAS 官方網站</a>
+    </footer>
+
+    <script src="script.js"></script> 
+</body>
+</html>
