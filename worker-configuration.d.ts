@@ -6,8 +6,13 @@ declare namespace Cloudflare {
 		mainModule: typeof import("./src/index");
 	}
     interface Env {
-            ASSETS: Fetcher;
-            TODO_KV: KVNamespace;
+        ASSETS: Fetcher;
+        TODO_KV: KVNamespace;
+        /* 由 wrangler.jsonc 改為 JHM5_* 命名，以下是新綁定的類型聲明 */
+        JHM5_ASSETS: Fetcher;
+        JHM5_TODO_KV: KVNamespace;
+        JHM5_MATH_KV: KVNamespace;
+        JHM5_D1?: D1Database;
         }
 }
 interface Env extends Cloudflare.Env {}

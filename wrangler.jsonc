@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "jhm5-ex03-2",
+	"name": "jhm5",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-09-20",
 	"observability": {
@@ -36,12 +36,22 @@
 	 */
 	"assets": {
 		"directory": "./public/",
-		"binding": "ASSETS"
+		"binding": "JHM5_ASSETS"
 	},
 	"kv_namespaces": [
 		{
-			"binding": "TODO_KV",
-			"id": "e1c75ccb561344a3becb5d207c94d376"
+			"binding": "JHM5_TODO_KV",
+			"id": "" /* ← 在部署前填入 KV 命名空間 ID */
+		},
+		{
+			"binding": "JHM5_MATH_KV",
+			"id": "" /* ← math-rushs KV */
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "JHM5_D1",
+			"database_name": "" /* ← 在部署前填入 D1 資料庫名稱 */
 		}
 	]
 	/**
