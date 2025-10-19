@@ -10,15 +10,14 @@
 包含的應用：
 - `index.html` — 主要登入 / 入口頁
 - App 1: tictactoe（井字遊戲） — 支援單人 AI 與雙人模式
-- App 2: todo-app（雲端待辦） — 使用 Cloudflare KV
-- App 3: DSE analysis（DSE 分析器） — 使用 Cloudflare D1（API 範例）
+- App 2: todo-app（雲端待辦） — 使用 Cloudflare KV（API 範例）
+- App 3: DSE analysis（DSE 分析器） — 使用 Cloudflare D1
 - App 4: maths-rushs（限時數學遊戲） — 使用 Cloudflare KV
 
 開發規範重點：
 1. 程式碼風格：簡潔、極簡、乾淨
-2. 專案名稱：`jhm5`
-3. Cloudflare 物件命名前綴：`jhm5_*`（例如 `JHM5_TODO_KV`）
-4. 主要登陸頁風格：以白色、淺藍、淺綠為主
+2. 專案名稱：`jhm5-ex03-2`
+3. 主要登陸頁風格：以白色、淺藍、淺綠為主
 
 ---
 

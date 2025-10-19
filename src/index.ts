@@ -1,3 +1,4 @@
+import { handleTodoApi } from './todo-app';
 /**
  * Welcome to Cloudflare Workers! This is your first worker.
  *
@@ -18,35 +19,48 @@ export default {
 		// 处理 todo.html 的 GET 请求：优先从 KV 读取
 			const path = url.pathname;
 
-			// 靜態資源優先：assets 目錄
-			// 針對需要從 KV 回傳的文件，先嘗試從 KV 讀取
+			// tictactoe 使用既有 assets（僅用 env.ASSETS）
+			if (path === '/tictactoe.html') {
+				if (env.ASSETS) return env.ASSETS.fetch(request);
+				return new Response('tictactoe not found', { status: 404 });
+			}
+
+			// todo.html 保留舊的 TODO_KV 儲存（若存在），並支援 jhm5 的 JHM5_TODO_KV 作為回退/替代
 			if (path === '/todo.html') {
 				if (request.method === 'GET') {
-					const html = await env.JHM5_TODO_KV.get('todo.html');
+					let html = null as string | null;
+					if (env.TODO_KV) html = await env.TODO_KV.get('todo.html');
+					// 不使用 JHM5_TODO_KV 作為回退；僅使用 TODO_KV
 					if (html) return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } });
-					return env.JHM5_ASSETS.fetch(request);
+					if (env.ASSETS) return env.ASSETS.fetch(request);
+					return new Response('todo.html not found', { status: 404 });
 				}
 				if (request.method === 'PUT') {
 					const body = await request.text();
-					await env.JHM5_TODO_KV.put('todo.html', body);
-					return new Response('todo.html 已儲存於 KV', { status: 200 });
+					if (env.TODO_KV) {
+						await env.TODO_KV.put('todo.html', body);
+						return new Response('todo.html 已儲存於 TODO_KV', { status: 200 });
+					}
+					return new Response('沒有配置 TODO_KV', { status: 500 });
 				}
 			}
 
-			// math-rushs: 以 /maths-rushs/maths.html 作為示例
+			// math-rushs: 使用新的 JHM5_MATH_KV 儲存；若無則回退到 assets
 			if (path.startsWith('/maths-rushs')) {
-				// GET: 優先從 KV 取回特定頁面
+				const key = path === '/maths-rushs/maths.html' ? 'maths-rushs/maths.html' : path;
 				if (request.method === 'GET') {
-					const key = path === '/maths-rushs/maths.html' ? 'maths-rushs/maths.html' : path;
-					const html = await env.JHM5_MATH_KV.get(key);
-					if (html) return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } });
-					return env.JHM5_ASSETS.fetch(request);
+					if (env.MATH_KV) {
+						const html = await env.MATH_KV.get(key);
+						if (html) return new Response(html, { headers: { 'content-type': 'text/html; charset=utf-8' } });
+					}
+					if (env.ASSETS) return env.ASSETS.fetch(request);
+					return new Response('maths-rushs not found', { status: 404 });
 				}
 				if (request.method === 'PUT') {
+					if (!env.MATH_KV) return new Response('沒有配置 MATH_KV', { status: 500 });
 					const body = await request.text();
-					const key = path === '/maths-rushs/maths.html' ? 'maths-rushs/maths.html' : path;
-					await env.JHM5_MATH_KV.put(key, body);
-					return new Response('maths-rushs 頁面已儲存於 KV', { status: 200 });
+					await env.MATH_KV.put(key, body);
+					return new Response('maths-rushs 頁面已儲存於 MATH_KV', { status: 200 });
 				}
 			}
 
@@ -63,7 +77,13 @@ export default {
 				}
 			}
 
+			// todo API
+			if (path === '/api/todo') {
+				return handleTodoApi(request, env);
+			}
+
 			// 其他所有請求回退到 assets
-			return env.JHM5_ASSETS.fetch(request);
+			if (env.ASSETS) return env.ASSETS.fetch(request);
+			return new Response('not found', { status: 404 });
 	},
 } satisfies ExportedHandler<Env>;

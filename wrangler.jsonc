@@ -36,15 +36,15 @@
 	 */
 	"assets": {
 		"directory": "./public/",
-		"binding": "JHM5_ASSETS"
+		"binding": "ASSETS"
 	},
 	"kv_namespaces": [
 		{
-			"binding": "JHM5_TODO_KV",
-			"id": "" /* ← 在部署前填入 KV 命名空間 ID */
+			"binding": "TODO_KV",
+			"id": "e1c75ccb561344a3becb5d207c94d376" /* ← 在部署前填入 KV 命名空間 ID */
 		},
 		{
-			"binding": "JHM5_MATH_KV",
+			"binding": "MATH_KV",
 			"id": "" /* ← math-rushs KV */
 		}
 	],
