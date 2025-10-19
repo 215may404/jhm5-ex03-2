@@ -13,10 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const electiveSubjects = [
-        '物理', '化學', '生物', '經濟', '企業、會計與財務概論',
-        '地理', '歷史', '中國歷史', '資訊及通訊科技', '視覺藝術',
-        '數學延伸部分(M1)', '數學延伸部分(M2)', '體育', '音樂',
-        '倫理與宗教', '旅遊與款待', '設計與應用科技', '家政與生活技能'
+        '中國文學','英國文學', '歷史', '中國歷史','地理',
+        '物理', '化學', '生物','經濟', '企業、會計與財務概論',
+        '數學延伸部分(M1)', '數學延伸部分(M2)',
+        '體育', '音樂','視覺藝術','資訊及通訊科技', '科技與生活',
+        '倫理與宗教', '旅遊與款待', '設計與應用科技', '健康管理與社會關懷'
     ];
 
     const percentileData = [
@@ -29,10 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { score: 5, percentile: 10, rank: '約 Top 90% 以下', desc: '建議考慮其他進修途徑' }
     ];
 
-    let electiveCount = 0;
+    let electiveCount = 0
 
     addElectiveBtn.addEventListener('click', () => {
-        if (electiveCount >= 6) { alert('最多只能添加 6 科選修科目'); return; }
+        if (electiveCount >= 4) { alert('最多只能添加 4 科選修科目'); return; }
         electiveCount++;
         const div = document.createElement('div');
         div.className = 'input-group';
