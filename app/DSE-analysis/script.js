@@ -30,6 +30,145 @@ document.addEventListener('DOMContentLoaded', () => {
         { score: 5, percentile: 10, rank: '約 Top 90% 以下', desc: '建議考慮其他進修途徑' }
     ];
 
+    // CSV 來源資料（稍後載入）
+    const subjectData = {}; // subject -> { headerKey: value }
+
+    // 解析簡單 CSV（非嚴格：不處理包含逗號的雙引號欄位）
+    function parseCSV(text) {
+        const lines = text.split(/\r?\n/).filter(l => l.trim());
+        const rows = lines.map(l => l.split(',').map(s => s.trim()));
+        const header = rows[0];
+        const data = [];
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const obj = {};
+            for (let j = 0; j < header.length; j++) obj[header[j]] = row[j] || '';
+            data.push(obj);
+        }
+        return data;
+    }
+
+    async function loadCSVData() {
+        try {
+            const [aTxt, csdTxt] = await Promise.all([
+                fetch('2024DSE(A).csv').then(r => r.text()),
+                fetch('2024DSE(CSD).csv').then(r => r.text())
+            ]);
+            const aRows = parseCSV(aTxt);
+            const csdRows = parseCSV(csdTxt);
+            // 建立以科目為 key 的彙整，優先取 (性別 包含 '總' 且 類別 包含 '百分') 的行
+            function ingest(rows) {
+                for (const r of rows) {
+                    const subj = r['\u79d1\u76ee'] || r['科目'] || r['科目_2'] || r['subject'] || '';
+                    if (!subj) continue;
+                    const sex = (r['性別'] || r['\u6027\u5225'] || '').toString();
+                    const cate = (r['類別'] || r['\u985e\u5225'] || r['category'] || '').toString();
+
+                    // 優先：總數 & 百分比
+                    if (sex.includes('總') && cate.includes('百分')) {
+                        subjectData[subj] = r;
+                        continue;
+                    }
+                    // 次優先：任何百分比行
+                    if (cate.includes('百分')) {
+                        // 若尚未有總數百分比，使用此行
+                        if (!subjectData[subj] || !( (subjectData[subj]['性別']||'').toString().includes('總') && (subjectData[subj]['類別']||'').toString().includes('百分') )) {
+                            subjectData[subj] = r;
+                        }
+                        continue;
+                    }
+                    // 否則首次出現的資料行作為備援（通常是人數）
+                    if (!subjectData[subj]) subjectData[subj] = r;
+                }
+            }
+
+            ingest(aRows);
+            ingest(csdRows);
+        } catch (e) {
+            console.warn('無法讀取 CSV：', e);
+        }
+    }
+
+    function normalizeHeader(h) {
+        return (h || '').toString().replace(/\s+/g, '').replace(/\uFEFF/g, '').toLowerCase();
+    }
+
+    // 更可靠的等級 -> CSV 欄位候選映射（依 csv 表頭命名慣例）
+    const gradeToHeaders = {
+        '5**': ['5**','5**'],
+        '5*': ['5*+','5*'],
+        '5': ['5+','5'],
+        '4': ['4+','4'],
+        '3': ['3+','3'],
+        '2': ['2+','2'],
+        '1': ['1+','1'],
+        'U': ['U']
+    };
+
+    function findPercentForRow(row, grade) {
+        if (!row) return null;
+        const keys = Object.keys(row || {});
+
+        // normalize key map for faster lookup
+        const normMap = {};
+        for (const k of keys) {
+            const nk = normalizeHeader(k);
+            normMap[nk] = k;
+        }
+
+        // try headers by grade candidates first
+        const candidates = gradeToHeaders[grade] || [];
+        for (const cand of candidates) {
+            // try exact includes in normalized keys
+            for (const nk of Object.keys(normMap)) {
+                if (nk.includes(cand.replace(/\s+/g,'').toLowerCase())) {
+                    const raw = row[normMap[nk]];
+                    const v = parsePercent(raw);
+                    if (v !== null) return v;
+                }
+            }
+        }
+
+        // fallback: search any header that contains '表現' 或 '%' 或 'percent' 再提取數字
+        for (const k of keys) {
+            if (/表現|percent|%/i.test(k)) {
+                const raw = row[k];
+                const v = parsePercent(raw);
+                if (v !== null) return v;
+            }
+        }
+
+        // 最後嘗試任意欄位解析出百分比數字
+        for (const k of keys) {
+            const raw = row[k];
+            const v = parsePercent(raw);
+            if (v !== null) return v;
+        }
+
+        return null;
+    }
+
+    function parsePercent(raw) {
+        if (raw === undefined || raw === null) return null;
+        const s = raw.toString().replace(/\uFEFF/g,'').trim();
+        // match number with optional percent sign
+        const m = s.match(/([0-9]+(\.[0-9]+)?)\s*%?/);
+        if (!m) return null;
+        const num = parseFloat(m[1]);
+        if (isNaN(num)) return null;
+        // Heuristic: if looks like a percentage (0-100), accept it.
+        if (num >= 0 && num <= 100) return num;
+        return null;
+    }
+
+    function estimatePercentileFor(subject, grade) {
+        const row = subjectData[subject];
+        if (!row) return null;
+        // use findPercentForRow
+        const val = findPercentForRow(row, grade);
+        return val; // percentage number or null
+    }
+
     let electiveCount = 0
 
     addElectiveBtn.addEventListener('click', () => {
@@ -65,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return { rankText: '未達標', percentileText: '低於 10 百分位' };
     }
 
+    // preload CSV data
+    loadCSVData();
+
     dseForm.addEventListener('submit', (e) => {
         e.preventDefault();
         // collect core grades
@@ -91,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const bestFive = sorted.slice(0,5);
         const bestFiveTotal = bestFive.reduce((s,v)=>s+v,0);
 
-        const { rankText, percentileText } = getRankAndPercentile(bestFiveTotal);
+    const { rankText, percentileText } = getRankAndPercentile(bestFiveTotal);
 
         // HD check: chi & eng >=2 and at least 5 subjects >=2 (include core+electives considered in bestFive?)
         const chiPass = (scoreMap[coreGrades.chi] || 0) >= 2;
@@ -108,6 +250,40 @@ document.addEventListener('DOMContentLoaded', () => {
         hdText += cslAttained ? ' | 公民科：達標' : ' | 公民科：不達標';
         document.getElementById('result-hd-req').textContent = hdText;
         resultsSection.style.display = 'block';
+
+        // CSV-based estimate: map each subject+grade to an estimated percentile (if CSV data exists)
+        const csvEstimateEl = document.getElementById('result-csv-estimate');
+        const breakdown = document.getElementById('result-breakdown');
+        if (csvEstimateEl && breakdown) {
+            const subjects = [
+                { name: '中國文學', grade: coreGrades.chi },
+                { name: '英國文學', grade: coreGrades.eng },
+                { name: '數學', grade: coreGrades.math }
+            ];
+            electiveGrades.forEach(e => subjects.push({ name: e.subject, grade: e.grade }));
+
+            breakdown.innerHTML = '';
+            const pctValues = [];
+            for (const s of subjects) {
+                const pct = estimatePercentileFor(s.name, s.grade);
+                const div = document.createElement('div');
+                if (pct !== null && pct !== undefined) {
+                    pctValues.push(pct);
+                    div.textContent = `${s.name} (${s.grade})：估計百分比 ${pct}%`;
+                } else if (subjectData[s.name]) {
+                    div.textContent = `${s.name} (${s.grade})：CSV 有資料，但無法解析出百分比`;
+                } else {
+                    div.textContent = `${s.name} (${s.grade})：無 CSV 資料`;
+                }
+                breakdown.appendChild(div);
+            }
+            if (pctValues.length > 0) {
+                const avg = Math.round(pctValues.reduce((a,b)=>a+b,0)/pctValues.length*10)/10;
+                csvEstimateEl.textContent = `基於 ${pctValues.length} 科的估計百分位：${avg}%`;
+            } else {
+                csvEstimateEl.textContent = `無足夠 CSV 百分比資料進行估計`;
+            }
+        }
     });
 
     resetBtn.addEventListener('click', () => {
