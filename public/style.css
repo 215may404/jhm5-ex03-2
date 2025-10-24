@@ -1,0 +1,33 @@
+* {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+}
+:root {
+ --bg-primary: #ffffff;
+ --bg-secondary: #cfe7ff;
+ --text-primary: #1a1a1a;
+ --accent-color: #d2fee7;
+ --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+body {
+ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', sans-serif;
+ background: var(--bg-secondary);
+ color: var(--text-primary);
+ line-height: 1.6;
+}
+.apps-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+ gap: 1.5rem;
+}
+.app-card {
+ background: var(--bg-primary);
+ border-radius: 12px;
+ padding: 2rem;
+ transition: all 0.2s ease;
+ box-shadow: var(--shadow-md);
+}
+.app-card:hover {
+ transform: translateY(-4px);
+}

@@ -3,7 +3,6 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "jhm5",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-09-20",
@@ -35,17 +34,13 @@
 	 * https://developers.cloudflare.com/workers/static-assets/binding/
 	 */
 	"assets": {
-		"directory": "./public/",
-		"binding": "ASSETS"
-	},
+			"directory": "./public/",
+			"binding": "ASSETS"
+		},
 	"kv_namespaces": [
 		{
 			"binding": "TODO_KV",
 			"id": "e1c75ccb561344a3becb5d207c94d376" /* ← 在部署前填入 KV 命名空間 ID */
-		},
-		{
-			"binding": "MATH_KV",
-			"id": "" /* ← math-rushs KV */
 		}
 	],
 	"d1_databases": [
@@ -53,10 +48,18 @@
 			"binding": "JHM5_D1",
 			"database_name": "" /* ← 在部署前填入 D1 資料庫名稱 */
 		}
-	]
+	],
+	"routes": [
+ 		{
+ 			"pattern": "jhm5.hahahahaha.io/*",
+ 			"zone_name": "hahahahaha.io"
+ 		}
+ 	]
+
 	/**
 	 * Service Bindings (communicate between multiple Workers)
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
+	
 }

@@ -1,0 +1,17 @@
+{
+ "name": "jhm5-ex03-2",
+ "version": "1.0.0",
+ "description": "Cloudflare Worker專案，提供靜態資源服務、API端點和KV儲存功能",
+ "main": "src/index.ts",
+ "scripts": {
+ "dev": "wrangler dev",
+ "deploy": "wrangler deploy"
+ },
+ "keywords": ["cloudflare", "worker", "kv", "assets"],
+ "author": "",
+ "license": "MIT",
+ "devDependencies": {
+ "@cloudflare/workers-types": "^4.20251014.0",
+ "wrangler": "^4.45.0"
+ }
+}
