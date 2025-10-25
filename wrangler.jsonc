@@ -45,8 +45,8 @@
 	],
 	"routes": [
  		{
- 			"pattern": "jhm5.hahahahaha.io/*",
- 			"zone_name": "hahahahaha.io"
+ 			"pattern": "jhm5.hahahahaha.com/*",
+ 			"zone_name": "hahahahaha.com"
  		}
  	]
 
