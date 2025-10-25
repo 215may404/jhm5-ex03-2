@@ -35,7 +35,7 @@ export default {
  // Todo Cloud API
  if (path.startsWith('/api/todo/')) {
  const userId = path.split('/')[3] || 'default';
- const key = `jhm5_todo_${userId}`;
+ const key = `jhm5_ex03_2_todo_${userId}`;
  if (request.method === 'GET') {
  const todos = await env.TODO_KV.get(key);
  return new Response(todos || '[]', {
@@ -58,7 +58,7 @@ export default {
  }
  // Math Game API
  if (path === '/api/mathsrushs/scores') {
- const key = 'jhm5_mathsrushs_scores';
+ const key = 'jhm5_ex03_2_mathsrushs_scores';
  if (request.method === 'GET') {
  const scores = await env.TODO_KV.get(key);
  return new Response(scores || '[]', {

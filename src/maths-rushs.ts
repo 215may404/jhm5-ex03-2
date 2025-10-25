@@ -12,7 +12,7 @@ export async function handleMathsApi(request: Request, env: Env): Promise<Respon
  return new Response(null, { headers: corsHeaders });
  }
  try {
- const key = 'jhm5_mathsrushs_scores';
+ const key = 'jhm5_ex03_2_mathsrushs_scores';
  if (request.method === 'GET') {
  const scores = await env.TODO_KV.get(key);
  return new Response(scores || '[]', {

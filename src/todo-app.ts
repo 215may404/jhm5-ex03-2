@@ -15,7 +15,7 @@ export async function handleTodoApi(request: Request, env: Env): Promise<Respons
  }
  try {
  const userId = path.split('/')[3] || 'default';
- const key = `jhm5_todo_${userId}`;
+ const key = `jhm5_ex03_2_todo_${userId}`;
  if (request.method === 'GET') {
  const todos = await env.TODO_KV.get(key);
  return new Response(todos || '[]', {

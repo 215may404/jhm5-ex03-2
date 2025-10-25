@@ -3,7 +3,7 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-	"name": "jhm5",
+	"name": "jhm5-ex03-2",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-09-20",
 	"observability": {
@@ -43,12 +43,6 @@
 			"id": "e1c75ccb561344a3becb5d207c94d376" /* ← 在部署前填入 KV 命名空間 ID */
 		}
 	],
-	"d1_databases": [
-		{
-			"binding": "JHM5_D1",
-			"database_name": "" /* ← 在部署前填入 D1 資料庫名稱 */
-		}
-	],
 	"routes": [
  		{
  			"pattern": "jhm5.hahahahaha.io/*",
@@ -61,5 +55,8 @@
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
 	 */
 	// "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
-	
+	/*"d1_databases": [
+		{
+			"binding": "JHM5_D1",
+			"database_name": "" /* ← 在部署前填入 D1 資料庫名稱 */
 }
